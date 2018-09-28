@@ -1,0 +1,18 @@
+---
+version: '3.4'
+
+services:
+  server:
+    image: golang:1.11-stretch
+    working_dir: /go/src/github.com/binarycode/trewoga
+    volumes:
+      - ./.go:/go
+      - ./.go/std/amd64:/usr/local/go/pkg/linux_amd64_static
+      - ./.go/cache:/root/.cache
+      - .:/go/src/github.com/binarycode/trewoga
+      - ./bin/amd64:/go/bin
+    environment:
+      LOGXI: '*'
+    command: trewoga
+    ports:
+      - "8080:80"
