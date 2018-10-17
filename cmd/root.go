@@ -77,6 +77,7 @@ func init() {
 	}
 
 	rootCmd.AddCommand(serviceListCmd)
+	rootCmd.AddCommand(serviceQRCodeCmd)
 	rootCmd.AddCommand(serviceAddCmd)
 	rootCmd.AddCommand(serviceRemoveCmd)
 	rootCmd.AddCommand(userListCmd)
