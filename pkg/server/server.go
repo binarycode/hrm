@@ -49,7 +49,7 @@ func serveHTTPS(host string) {
 		TLSConfig: tlsConfig,
 	}
 
-	go serveHTTP(address, manager.HTTPHandler(nil))
+	go serveHTTP(host, manager.HTTPHandler(nil))
 
 	log.Info("Starting HTTPS server", "address", address)
 
