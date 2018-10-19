@@ -1,16 +1,13 @@
 package bot
 
 import (
-	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/mgutz/logxi/v1"
 
 	"github.com/binarycode/trewoga/pkg/db"
 	"github.com/binarycode/trewoga/pkg/model"
 )
 
-func unsubscribe(user model.User, update tgbotapi.Update) {
-	name := update.Message.CommandArguments()
-
+func unsubscribe(user model.User, name string) {
 	if name == "" {
 		send(user, "*ERROR* empty service name")
 	}

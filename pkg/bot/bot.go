@@ -59,7 +59,7 @@ func Start(config Config) {
 		}
 
 		for update := range updates {
-			process(update)
+			process(update.Message)
 		}
 	}
 }
@@ -70,21 +70,20 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 	var update tgbotapi.Update
 	json.Unmarshal(bytes, &update)
 
-	process(update)
+	process(update.Message)
 }
 
-func process(update tgbotapi.Update) {
-	if (update.Message == nil) || (!update.Message.IsCommand()) {
+func process(message *tgbotapi.Message) {
+	if message == nil {
 		return
 	}
 
-	from := update.Message.From
-
+	from := message.From
 	user, err := db.GetUser(model.User{TelegramID: from.ID})
 	if err != nil {
 		user = model.User{
 			TelegramID:   from.ID,
-			ChatID:       update.Message.Chat.ID,
+			ChatID:       message.Chat.ID,
 			FirstName:    from.FirstName,
 			LastName:     from.LastName,
 			UserName:     from.UserName,
@@ -98,7 +97,24 @@ func process(update tgbotapi.Update) {
 		return
 	}
 
-	switch update.Message.Command() {
+	if message.IsCommand() {
+		command(user, message)
+	} else if message.Photo != nil {
+		for _, photo := range (*message.Photo) {
+			token, err := parseQRCode(photo)
+			if err != nil {
+				send(user, "Cannot parse QR Code")
+				return
+			}
+			subscribe(user, token)
+		}
+	}
+}
+
+func command(user model.User, message *tgbotapi.Message) {
+	args := message.CommandArguments()
+
+	switch message.Command() {
 	case "help", "?":
 		help(user)
 	case "start":
@@ -106,35 +122,48 @@ func process(update tgbotapi.Update) {
 	case "status", "*":
 		status(user)
 	case "subscribe", "s", "+":
-		subscribe(user, update)
+		subscribe(user, args)
 	case "unsubscribe", "u", "-":
-		unsubscribe(user, update)
+		unsubscribe(user, args)
 	}
-}
-
-func getUser(update tgbotapi.Update) (user model.User, err error) {
-	from := update.Message.From
-
-	user, err = db.GetUser(model.User{TelegramID: from.ID})
-	if err == nil {
-		return
-	}
-
-	user = model.User{
-		TelegramID:   from.ID,
-		ChatID:       update.Message.Chat.ID,
-		FirstName:    from.FirstName,
-		LastName:     from.LastName,
-		UserName:     from.UserName,
-		LanguageCode: from.LanguageCode,
-		IsBot:        from.IsBot,
-	}
-	err = db.SaveUser(&user)
-	return
 }
 
 func send(user model.User, text string) {
 	message := tgbotapi.NewMessage(user.ChatID, text)
 	message.ParseMode = "Markdown"
 	bot.Send(message)
+}
+
+func parseQRCode(photo *message.PhotoSize) (token string, err error) {
+	url, err := bot.GetFileDirectURL(photo.FileID)
+	if err != nil {
+		log.Error("Unable to get direct URL for a file", "photo", photo, "err", err)
+		return
+	}
+
+	response, err := http.Get(url)
+	if err != nil {
+		log.Error("Unable to download file", "url", url, "err", err)
+		return
+	}
+	defer response.Body.Close()
+
+	file, err := ioutil.TempFile("", "photo")
+	if err != nil {
+		log.Error("Unable to create tempfile", "err", err)
+		return
+	}
+	defer os.Remove(file.Name())
+
+	_, err := io.Copy(out, response.Body)
+	if err != nil {
+		log.Error("Unable to write the response to file", "err", err)
+		return
+	}
+
+	err := os.Close(file)
+	if err != nil {
+		log.Error("Unable to close tempfile", "err", err)
+		return
+	}
 }

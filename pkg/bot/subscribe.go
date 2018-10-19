@@ -1,16 +1,13 @@
 package bot
 
 import (
-	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/mgutz/logxi/v1"
 
 	"github.com/binarycode/trewoga/pkg/db"
 	"github.com/binarycode/trewoga/pkg/model"
 )
 
-func subscribe(user model.User, update tgbotapi.Update) {
-	token := update.Message.CommandArguments()
-
+func subscribe(user model.User, token string) {
 	if token == "" {
 		send(user, "*ERROR* empty token")
 	}
