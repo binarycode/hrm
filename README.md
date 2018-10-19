@@ -1,4 +1,4 @@
-# Trewoga v0.0.1
+# Trewoga v0.0.2
 
 Really tiny and simple service monitoring system
 
