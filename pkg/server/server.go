@@ -9,13 +9,14 @@ import (
 )
 
 type Config struct {
+	Cache string
 	Host  string
 	HTTPS bool
 }
 
 func Start(config Config) {
 	if config.HTTPS {
-		serveHTTPS(config.Host)
+		serveHTTPS(config.Host, config.Cache)
 	} else {
 		serveHTTP(config.Host, nil)
 	}
@@ -31,11 +32,11 @@ func serveHTTP(host string, handler http.Handler) {
 	}
 }
 
-func serveHTTPS(host string) {
+func serveHTTPS(host string, cache string) {
 	manager := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist(host),
-		Cache:      autocert.DirCache("."),
+		Cache:      autocert.DirCache(cache),
 	}
 
 	tlsConfig := &tls.Config{

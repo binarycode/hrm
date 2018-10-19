@@ -16,6 +16,7 @@ import (
 
 type Config struct {
 	Address string
+	Cert    string
 	DB      string
 	Proxy   string
 	Token   string
@@ -34,6 +35,7 @@ func init() {
 
 	cobra.EnableCommandSorting = false
 	cobra.OnInitialize(func() {
+		viper.SetDefault("Cert", ".")
 		if configFile != "" {
 			viper.SetConfigFile(configFile)
 		} else {
@@ -71,6 +73,7 @@ func init() {
 		go monitor.Start()
 
 		server.Start(server.Config{
+			Cache: config.Cert,
 			Host:  url.Hostname(),
 			HTTPS: https,
 		})

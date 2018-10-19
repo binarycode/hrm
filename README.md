@@ -25,6 +25,7 @@ used, certificates are configured automatically (using
 * `token` (required) - Telegram Bot API token
 * `proxy` (optional) - HTTPS proxy for Telegram (useful in countries where
 Telegram is blocked)
+* `cert` (options, default = ".") - path for Let's Encrypt to store certificates
 
 ## Managing services
 
