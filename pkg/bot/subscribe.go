@@ -27,5 +27,5 @@ func subscribe(user model.User, update tgbotapi.Update) {
 		return
 	}
 
-	send(user, "Successfully subscribed to "+service.Name)
+	send(user, "Successfully subscribed to "+escapeMarkdown(service.Name))
 }

@@ -7,6 +7,6 @@ func help(user model.User) {
 
 /version - get Trewoga server version
 /status - get status of all subscribed services
-/subscribe SERVICE_TOKEN - subscribe to a service (SERVICE_TOKEN can be obtained from Trewoga server administrator)
-/unsubscribe SERVICE_NAME - unsubscribe from a service`)
+/subscribe SERVICE\_TOKEN - subscribe to a service (SERVICE\_TOKEN can be obtained from Trewoga server administrator)
+/unsubscribe SERVICE\_NAME - unsubscribe from a service`)
 }

@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/mgutz/logxi/v1"
@@ -40,6 +42,10 @@ func Start(config Config) {
 	}
 	log.Info("Started bot", "bot", bot.Self.UserName)
 
+	if os.Getenv("DEBUG") != "" {
+		bot.Debug = true
+	}
+
 	if config.Webhook {
 		path := "/webhook/" + config.Token
 
@@ -50,6 +56,11 @@ func Start(config Config) {
 
 		http.HandleFunc(path, webhook)
 	} else {
+		_, err = bot.RemoveWebhook()
+		if err != nil {
+			log.Fatal("Unable to remove webhook", "err", err)
+		}
+
 		updates, err := bot.GetUpdatesChan(tgbotapi.UpdateConfig{
 			Offset:  0,
 			Timeout: 60,
@@ -109,6 +120,8 @@ func process(update tgbotapi.Update) {
 		subscribe(user, update)
 	case "unsubscribe", "u", "-":
 		unsubscribe(user, update)
+	case "version", "v":
+		version(user)
 	}
 }
 
@@ -137,4 +150,14 @@ func send(user model.User, text string) {
 	message := tgbotapi.NewMessage(user.ChatID, text)
 	message.ParseMode = "Markdown"
 	bot.Send(message)
+}
+
+func escapeMarkdown(text string) string {
+	text = strings.Replace(text, "*", "\\*", -1)
+	text = strings.Replace(text, "_", "\\_", -1)
+	text = strings.Replace(text, "[", "\\[", -1)
+	text = strings.Replace(text, "]", "\\]", -1)
+	text = strings.Replace(text, "`", "\\`", -1)
+
+	return text
 }

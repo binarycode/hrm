@@ -9,17 +9,17 @@ import (
 
 func MaintenanceFailure(service model.Service) {
 	log.Warn("Maintenance took too long", "service", service.Name)
-	notify(service, "*MAINTENANCE FAILURE* "+service.Name)
+	notify(service, "*MAINTENANCE FAILURE*")
 }
 
 func Failure(service model.Service) {
 	log.Warn("Service failed", "service", service.Name)
-	notify(service, "*FAILURE* "+service.Name)
+	notify(service, "*FAILURE*")
 }
 
 func Recovery(service model.Service) {
 	log.Warn("Service recovered", "service", service.Name)
-	notify(service, "*RECOVERY* "+service.Name)
+	notify(service, "*RECOVERY*")
 }
 
 func notify(service model.Service, text string) {
@@ -28,6 +28,8 @@ func notify(service model.Service, text string) {
 		log.Error("Unable to query users subscribed to service", "service", service, "err", err)
 		return
 	}
+
+	text = text + " " + escapeMarkdown(service.Name)
 
 	for _, user := range users {
 		send(user, text)

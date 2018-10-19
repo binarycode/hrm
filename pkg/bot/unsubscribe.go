@@ -27,5 +27,5 @@ func unsubscribe(user model.User, update tgbotapi.Update) {
 		return
 	}
 
-	send(user, "Successfully unsubscribed from "+service.Name)
+	send(user, "Successfully unsubscribed from "+escapeMarkdown(service.Name))
 }

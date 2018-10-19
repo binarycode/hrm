@@ -26,9 +26,13 @@ func status(user model.User) {
 		} else {
 			b.WriteString("*OK* ")
 		}
-		b.WriteString(service.Name)
+		b.WriteString(escapeMarkdown(service.Name))
 		b.WriteString("\n")
 	}
 
-	send(user, b.String())
+	if b.Len() == 0 {
+		send(user, "No subsribed services")
+	} else {
+		send(user, b.String())
+	}
 }

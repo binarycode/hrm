@@ -7,5 +7,5 @@ import (
 )
 
 func version(user model.User) {
-	send(user, v.Version)
+	send(user, escapeMarkdown(v.Version))
 }
