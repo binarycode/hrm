@@ -13,6 +13,7 @@ func subscribe(user model.User, update tgbotapi.Update) {
 
 	if token == "" {
 		send(user, "*ERROR* empty token")
+		return
 	}
 
 	service, err := db.GetService(model.Service{Token: token})

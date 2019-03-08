@@ -13,6 +13,7 @@ func unsubscribe(user model.User, update tgbotapi.Update) {
 
 	if name == "" {
 		send(user, "*ERROR* empty service name")
+		return
 	}
 
 	service, err := db.GetService(model.Service{Name: name})
